@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import newspaper, time, sys, os, django
+import newspaper
 import json
 import datetime
 import concurrent.futures
@@ -9,7 +9,6 @@ import csv
 import dateparser
 import re
 from time import gmtime, strftime
-from newspaper import Config, Article, Source
 from nltk.tokenize import word_tokenize
 from bs4 import BeautifulSoup
 from pathlib import Path
@@ -19,22 +18,14 @@ feed_news = []
 feed_logs = []
 done_url = []
 languages = ['es', 'pt', 'en']
-base_path ="/opt/dailycorruption/news_crawler"
+base_path = "/news_crawler"
 outlets_file = "outlets_list.csv"
-lexicon_values = "lexicon_values.csv"
-django_path = "/opt/dailycorruption"
 
 config = Config()
 config.follow_meta_refresh = True
 config.memoize_articles = True
 config.fetch_images=False
 config.verbose = False
-
-sys.path.append(django_path)
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dc_platform.settings")
-django.setup()
-
-from newsfeed.models import News
 
 lexicon_list = []
 
@@ -56,8 +47,7 @@ def donwload_mediaOutlet(outlet):
   #newspaper
   media_outlet = Source(outlet["url"], config)
   media_outlet.build()
-  # media_outlet.categories_to_articles()
-  # media_outlet.generate_articles()
+
   count_articles = len(media_outlet.articles)
   if(count_articles > 0):
     print("Building {} for {}".format(count_articles, outlet["outlet"]))
@@ -171,7 +161,6 @@ def get_field_value(field, article):
         value = date_format(value)
         return value
 
-  return None
 
 def regex_date(doc):
 
@@ -212,26 +201,13 @@ def validate_exists(url):
   
   if(url in done_url):
     return True
-  else:
-    done_url.append(url)
+  
+  done_url.append(url)
+  
+  return False
 
-  return News.objects.exist_url(url)
-
-def save_news(data, country):
-  news_object = News.objects.save_news(data, country)  
-  return news_object
 
 if __name__ == "__main__":
 
   download_outlets(outlets_file)
-  
-  # url = "https://www.latercera.com/politica/noticia/gobierno-busca-fortalecer-ley-zamudio-convocara-una-consulta-ciudadana/505252/"
-  # process_article(url, 
-  #   {
-  #     "url": "https://www.latercera.com",
-  #     "country": "chile",
-  #     "outlet": "laterceracom"
-  #   }
-  # )
-
   
