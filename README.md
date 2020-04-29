@@ -1,4 +1,4 @@
-#Latin America media outlets crawler
+# Latin America media outlets crawler
 
 This script allows to download a newsfeed from different news media in Latin America. The data downloaded is in JSON Format.
 
